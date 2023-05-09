@@ -1,0 +1,18 @@
+---
+
+schema:
+  - ./schemata/**/*.gql
+exec:
+  layout: follow-schema
+  dir: executableschema
+  package: executableschema
+model:
+  filename: dtos/dto_gen.go
+  package: dtos
+resolver:
+  layout: follow-schema
+  dir: resolvers
+  package: resolvers
+  filename_template: 'res.{name}.go'
+  omit_template_comment: true
+skip_mod_tidy: true
