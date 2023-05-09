@@ -1,0 +1,13 @@
+enum Role {
+  ADMIN
+  ORDINARY
+}
+
+type User {
+  name: String!
+  role: Role!
+}
+
+extend type Query {
+  user(name: String!): User
+}
