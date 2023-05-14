@@ -1,3 +1,5 @@
+//go:generate go run github.com/aereal/enjoy-gqlgen/tools/codegen
+
 package resolvers
 
 // This file will not be regenerated automatically.
