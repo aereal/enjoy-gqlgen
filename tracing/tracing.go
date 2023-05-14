@@ -2,18 +2,42 @@ package tracing
 
 import (
 	"context"
+	"errors"
 	"net/url"
 	"path"
 	"reflect"
+	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"go.opentelemetry.io/contrib/propagators/b3"
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.18.0"
+	"go.opentelemetry.io/otel/trace"
 )
+
+func FinishSpan(span trace.Span, err error) {
+	code := codes.Ok
+	var desc string
+	if err != nil {
+		code = codes.Error
+		desc = err.Error()
+		var merr *multierror.Error
+		if errors.As(err, &merr) && merr != nil {
+			occurredAt := time.Now()
+			for _, e := range merr.Errors {
+				span.RecordError(e, trace.WithTimestamp(occurredAt))
+			}
+		} else {
+			span.RecordError(err)
+		}
+	}
+	span.SetStatus(code, desc)
+	span.End()
+}
 
 func Setup(ctx context.Context) (func(context.Context), error) {
 	opts := []sdktrace.TracerProviderOption{sdktrace.WithSampler(sdktrace.AlwaysSample())}
