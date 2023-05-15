@@ -1,0 +1,26 @@
+{{ reserveImport "errors" }}
+
+var ErrEnumValueMustBeString = errors.New("enum values must be string")
+
+{{ range $enum := .Enums }}
+  const (
+    {{- range $value := .Values }}
+      {{ with .Description }}{{ . | prefixLines "// " }}{{ end }}
+      {{ goModelName $enum.Name .Name }} {{ goModelName $enum.Name }} = {{ .Name | quote }}
+    {{- end }}
+  )
+
+  {{ with .Description }}{{ . | prefixLines "// " }}{{ end }}
+  type {{ goModelName .Name }} string
+
+  func (v {{ goModelName .Name }}) String() string { return string(v) }
+
+  func (e *{{ goModelName .Name }}) UnmarshalGQL(v any) error {
+    s, ok := v.(string)
+    if !ok {
+      return ErrEnumValueMustBeString
+    }
+    *e = {{ goModelName .Name }}(s)
+    return nil
+  }
+{{- end }}
