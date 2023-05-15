@@ -451,13 +451,19 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 // region    ***************************** type.gotpl *****************************
 
 func (ec *executionContext) unmarshalNRole2githubᚗcomᚋaerealᚋenjoyᚑgqlgenᚋdtosᚐRole(ctx context.Context, v interface{}) (dtos.Role, error) {
-	var res dtos.Role
-	err := res.UnmarshalGQL(v)
+	tmp, err := graphql.UnmarshalString(v)
+	res := dtos.Role(tmp)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNRole2githubᚗcomᚋaerealᚋenjoyᚑgqlgenᚋdtosᚐRole(ctx context.Context, sel ast.SelectionSet, v dtos.Role) graphql.Marshaler {
-	return v
+	res := graphql.MarshalString(string(v))
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
 }
 
 func (ec *executionContext) marshalOUser2ᚖgithubᚗcomᚋaerealᚋenjoyᚑgqlgenᚋdtosᚐUser(ctx context.Context, sel ast.SelectionSet, v *dtos.User) graphql.Marshaler {
